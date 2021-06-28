@@ -17,7 +17,6 @@ class PatientSchema extends Schema {
       table.string('name').notNullable()
       table.string('cpf').notNullable()
       table.integer('num_registry').notNullable()
-      table.date('admission')
       table.timestamps()
     })
   }

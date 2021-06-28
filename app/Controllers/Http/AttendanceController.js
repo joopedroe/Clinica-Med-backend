@@ -1,92 +1,83 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Attendance =use('App/Models/Attendance')
 
-/**
- * Resourceful controller for interacting with attendances
- */
+
 class AttendanceController {
-  /**
-   * Show a list of all attendances.
-   * GET attendances
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+
+  async index ({ response}) {
+    const attendance = await Attendance.query('report',1).with('patient').with('medical').fetch()
+    if(attendance==null){
+      return response.status(203).send({
+        message: "Attendance not Found"
+      })
+    }
+    return attendance;
   }
 
-  /**
-   * Render a form to be used for creating a new attendance.
-   * GET attendances/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  
+  async find_id ({ params, response}) {
+    const id=params.attendance_id
+    const attendance = await Attendance.query().where('id',id).with('patient').with('medical').fetch()
+    if(attendance==null){
+      return response.status(203).send({
+        message: "Attendance not Found"
+      })
+    }
+    return attendance;
   }
 
-  /**
-   * Create/save a new attendance.
-   * POST attendances
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+
+  async store ({ request}) {
+    const data = request.only(['medical_id','patient_id','datetime_input','status','user_id','datetime_output','report'])
+    const attendance = await Attendance.create({...data});
+    return attendance;
   }
 
-  /**
-   * Display a single attendance.
-   * GET attendances/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
+
+  async indexMedical ({ params, response, }) {
+    const medical_id=params.medical_id
+    const attendance = await Attendance.query().where('medical_id',medical_id).with('patient').with('medical').fetch()
+    if(attendance==null){
+      return response.status(203).send({
+        message: "Attendance not Found"
+      })
+    }
+    return attendance;
   }
 
-  /**
-   * Render a form to update an existing attendance.
-   * GET attendances/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  async indexPatient ({ params, response, }) {
+    const patient_id=params.patient_id
+    const attendance = await Attendance.query().where('patient_id',patient_id).with('patient').with('medical').fetch()
+    if(attendance==null){
+      return response.status(203).send({
+        message: "Attendance not Found"
+      })
+    }
+    return attendance;
+  }
+ 
   async edit ({ params, request, response, view }) {
   }
 
-  /**
-   * Update attendance details.
-   * PUT or PATCH attendances/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
+  
   async update ({ params, request, response }) {
+    const data = request.only(['medical_id','patient_id','status','datetime_input','user_id','datetime_output','report'])
+    const attendance_id= params.attendance_id
+    const attendance = await Attendance.query().where('id',attendance_id).update(data)
+    return response.status(200).send({
+      message: "Successfully updated"
+    })
   }
 
-  /**
-   * Delete a attendance with id.
-   * DELETE attendances/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
+
   async destroy ({ params, request, response }) {
+    const attendance_id= params.attendance_id
+    const attendance = await Attendance.findBy('id',attendance_id)
+    await attendance.delete()
+    return response.status(200).send({
+      message: "Successfully deleted"
+    })
   }
 }
 

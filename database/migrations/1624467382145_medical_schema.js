@@ -2,6 +2,7 @@
 
 /** @type {import('@adonisjs/lucid/src/Schema')} */
 const Schema = use('Schema')
+const User = use('Schema')
 
 
 class MedicalSchema extends Schema {
@@ -16,9 +17,9 @@ class MedicalSchema extends Schema {
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
       table.string('name').notNullable()
-      table.string('registy').notNullable()
-      table.string('specialty').notNullable()
       table.boolean('isAdmin').notNullable()
+      table.string('registry').notNullable()
+      table.string('specialty').notNullable()
       table.timestamps()
     })
   }

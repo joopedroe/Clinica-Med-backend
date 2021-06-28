@@ -21,6 +21,7 @@ class AttendanceSchema extends Schema {
         .inTable('patients')
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
+      table.boolean('status')
       table.datetime('datetime_input')
       table.datetime('datetime_output')
       table.string('report')

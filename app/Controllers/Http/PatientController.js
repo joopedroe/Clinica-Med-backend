@@ -1,92 +1,64 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Patient =use('App/Models/Patient')
 
-/**
- * Resourceful controller for interacting with patients
- */
 class PatientController {
-  /**
-   * Show a list of all patients.
-   * GET patients
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  
+  async index ({ params, response, view }) {
+    const user_id= params.user_id
+    const patient = await Patient.query('user_id',user_id).with('user').fetch()
+    if(patient==null){
+      return response.status(203).send({
+        message: "Patient not Found"
+      })
+    }
+     return patient;
   }
 
-  /**
-   * Render a form to be used for creating a new patient.
-   * GET patients/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  async indexCpf ({ params, response, view }) {
+    const cpf= params.cpf
+    console.log(cpf)
+    const patient = await Patient.findBy('cpf',cpf)
+    if(patient==null){
+      return response.status(203).send({
+        message: "Patient not Found"
+      })
+    }
+    return patient;
+    
+  }
+
+  
   async create ({ request, response, view }) {
   }
 
-  /**
-   * Create/save a new patient.
-   * POST patients
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
+  
   async store ({ request, response }) {
+    const data = request.only(['name','cpf','num_registry','user_id'])
+    const patient= await Patient.create({...data});
+    return patient;
   }
 
-  /**
-   * Display a single patient.
-   * GET patients/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+  
   async show ({ params, request, response, view }) {
   }
 
-  /**
-   * Render a form to update an existing patient.
-   * GET patients/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
+ 
   async edit ({ params, request, response, view }) {
   }
 
-  /**
-   * Update patient details.
-   * PUT or PATCH patients/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
+ 
   async update ({ params, request, response }) {
   }
 
-  /**
-   * Delete a patient with id.
-   * DELETE patients/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
+
   async destroy ({ params, request, response }) {
+    const user_id= params.user_id
+    const patient = await Patient.findBy('user_id',user_id)
+    await patient.delete()
+    return response.status(200).send({
+      message: "Successfully deleted"
+    })
   }
 }
 
